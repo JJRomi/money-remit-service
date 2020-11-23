@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kpay.remit.distribution.dto.DistributionSaveRequestDto;
+import com.kpay.remit.distribution.dto.ReceiveSaveRequestDto;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
@@ -53,6 +54,37 @@ public class DistributionControllerTest {
 		DistributionSaveRequestDto requestDto = new DistributionSaveRequestDto();
 		requestDto.setAmount(amount);
 		requestDto.setPersonnel(personnel);
+
+		String content = objectMapper.writeValueAsString(requestDto);
+
+		return content;
+	}
+
+	@Test
+	@DisplayName("받기 API: 받기 기능 API 테스트")
+	public void receiveSave() throws Exception {
+		Long roomId = Long.valueOf(1);
+		Long userId = Long.valueOf(3);
+
+		String content = this.받기요청("UR5");
+
+		this.mockMvc.perform(
+			post("/api/v1/receive")
+				.header("X-ROOM-ID", roomId)
+				.header("X-USER-ID", userId)
+				.content(content)
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON)
+		)
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.amount").isNotEmpty())
+			.andDo(print());
+
+	}
+
+	private String 받기요청(String token) throws JsonProcessingException {
+		ReceiveSaveRequestDto requestDto = new ReceiveSaveRequestDto();
+		requestDto.setToken(token);
 
 		String content = objectMapper.writeValueAsString(requestDto);
 
