@@ -109,16 +109,16 @@ public class DistributionService {
 		Long distributionId = this.getDistributionId(token, roomId);
 		this.receiveRequestSave(distributionId, roomId, userId, requestDto);
 		if(tokenServiceImpl.checkByTokenInRoom(token, roomId)) {
-			throw new DistributionException("유효하지 않은 토큰입니다.");
+			throw new DistributionException("유효하지 않은 토큰입니다.", "T001");
 		}
 		if(!this.roomService.findByUserInRoom(userId, roomId)) {
-			throw new DistributionException("해당 방 참여자만 받을 수 있습니다.");
+			throw new DistributionException("해당 방 참여자만 받을 수 있습니다.", "R001");
 		}
 		if(tokenServiceImpl.checkByTokenUser(token, roomId, userId)) {
-			throw new DistributionException("자신이 뿌린 머니는 받을 수 없습니다.");
+			throw new DistributionException("자신이 뿌린 머니는 받을 수 없습니다.", "M001");
 		}
 		if(findAlreadyReceiveByTokenInRoom(token, distributionId, userId) > 0) {
-			throw new DistributionException("이미 받으셨습니다.");
+			throw new DistributionException("이미 받으셨습니다.", "M002");
 		}
 		List<Receive> receiveList = this.receiveRepository.findRemainAmountByToken(token, distributionId);
 		int idx = (int)(Math.random()*receiveList.size());
@@ -157,12 +157,9 @@ public class DistributionService {
 	}
 
 	public DistributionListResponseDto distributionList(Long userId, Long roomId, String token) {
-		// 토큰 체크 : 7일이내 발급, 요청한  = 발급한 사람
 		if(!tokenServiceImpl.checkByTokenUserAtDatetime(token, roomId, userId)) {
-			throw new DistributionException("유효하지 않은 토큰입니다.");
+			throw new DistributionException("유효하지 않은 토큰입니다.", "T001");
 		}
-
-		// 조회리스트
 		DistributionListResponseDto responseDto = this.getDistributionList(token, roomId);
 
 		return responseDto;

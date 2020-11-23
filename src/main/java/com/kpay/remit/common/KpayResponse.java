@@ -5,8 +5,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class KpayResponse{
-//	private String errorCode;
+public class KpayResponse<T> {
+	private String errorCode;
 	private String errorMessage;
-
+	private T Data;
 }

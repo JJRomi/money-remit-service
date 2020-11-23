@@ -14,11 +14,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GlobalExceptionHandler {
 	@ExceptionHandler(DistributionException.class)
-	protected ResponseEntity<KpayResponse> handleDistributionMethodValidException(DistributionException e) {
+	protected ResponseEntity<KpayResponse> handleDistributionMethodValidException(final DistributionException e) {
 		log.error("handleDistributionMethodValidException", e);
 
 		final KpayResponse response = new KpayResponse();
 		response.setErrorMessage(e.getMessage());
+		response.setErrorCode(e.getErrorCode());
+		response.setData(null);
 
 		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}
