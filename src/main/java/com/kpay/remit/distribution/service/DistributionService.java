@@ -177,7 +177,7 @@ public class DistributionService {
 
 		List<Receive> receiveList = this.receiveRepository.findReceiveListByDistribution(token, distribution.getId());
 		DistributionListResponseDto responseDto = new DistributionListResponseDto();
-		responseDto.setDistributionDateTime(distribution.getCreatedAt());
+		responseDto.setDistributionDate(distribution.getCreatedAt());
 		responseDto.setAmount(distribution.getAmount());
 		responseDto.setReceiveList(receiveList);
 
