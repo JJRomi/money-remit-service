@@ -1,0 +1,21 @@
+version: '3.1'
+networks:
+  backend :
+    driver: bridge
+services:
+  db:
+    image: mariadb
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    restart: always
+    ports:
+      - "3307:3306"
+    networks:
+      - backend
+    environment:
+      - MYSQL_ROOT_PASSWORD=test
+      - MYSQL_DATABASE=test
+      - MYSQL_USER=test
+      - MYSQL_PASSWORD=test
+  #    volumes:
+  #       - "~/my_local_path/ETC/db:/remote_local_path"
+#         - "~/docker/ETC/db:/db"
