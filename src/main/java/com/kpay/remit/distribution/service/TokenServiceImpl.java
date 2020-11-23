@@ -35,17 +35,16 @@ public class TokenServiceImpl implements TokenService {
 	}
 
 	@Override
-	public boolean checkByTokenTime(String token, Long roomId) {
-		return false;
-	}
-
-	@Override
-	public boolean checkByTokenUser(String token, Long roomId) {
+	public boolean checkByTokenUser(String token, Long roomId, Long userId) {
+		Long tokenUserId = distributeRepository.findUserIdByTokenUser(token, roomId);
+		if(tokenUserId == userId) {
+			return true;
+		}
 		return false;
 	}
 
 	@Override
 	public boolean checkByTokenUserAtDatetime(String token, Long roomId, Long userId) {
-		return false;
+		return true;
 	}
 }

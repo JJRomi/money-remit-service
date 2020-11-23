@@ -5,9 +5,7 @@ public interface TokenService {
 
 	public boolean checkByTokenInRoom(String token, Long roomId);
 
-	public boolean checkByTokenTime(String token, Long roomId);
-
-	public boolean checkByTokenUser(String token, Long roomId);
+	public boolean checkByTokenUser(String token, Long roomId, Long userId);
 
 	public boolean checkByTokenUserAtDatetime(String token, Long roomId, Long userId);
 }
