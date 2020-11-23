@@ -51,13 +51,6 @@ public class DistributionService {
 	@Autowired
 	private TokenServiceImpl tokenServiceImpl;
 
-	public boolean checkDistribution(Long userId, Long roomId) {
-		if(!this.roomService.findByUserInRoom(userId, roomId)) {
-			return false;
-		}
-		return true;
-	}
-
 	public DistributionSaveResponseDto distributionSave(Long userId, Long roomId, DistributionSaveRequestDto requestDto) {
 		if(!this.checkDistribution(userId, roomId)) {
 			return null;
@@ -71,6 +64,13 @@ public class DistributionService {
 		return responseDto;
 	}
 
+	public boolean checkDistribution(Long userId, Long roomId) {
+		if(!this.roomService.findByUserInRoom(userId, roomId)) {
+			return false;
+		}
+		return true;
+	}
+
 	public Distribution distributionSave(Long userId, Long roomId, DistributionSaveRequestDto requestDto, String token) {
 		Distribution distribution = new Distribution();
 		distribution.setUserId(userId);
@@ -81,7 +81,6 @@ public class DistributionService {
 
 		return IDistributionRepository.save(distribution);
 	}
-
 
 	public void divideMoney(Distribution distribution) {
 		int amount = distribution.getAmount();
@@ -94,20 +93,43 @@ public class DistributionService {
 			if(i == personnel-1) {
 				amountByOne += remain;
 			}
-			Receive receive = new Receive();
-			receive.setDistributionId(distribution.getId());
-			receive.setToken(distribution.getToken());
-			receive.setRoomId(distribution.getRoomId());
-			receive.setAmount(amountByOne);
+			Receive receive = setDivideReceiveMoney(distribution, amountByOne);
 			receiveList.add(receive);
 		}
 		IReceiveRepository.saveAll(receiveList);
 	}
 
+	public Receive setDivideReceiveMoney(Distribution distribution, int amount) {
+		Receive receive = new Receive();
+		receive.setDistributionId(distribution.getId());
+		receive.setToken(distribution.getToken());
+		receive.setRoomId(distribution.getRoomId());
+		receive.setAmount(amount);
+
+		return receive;
+	}
+
 	public ReceiveSaveResponseDto receiveSave(Long userId, Long roomId, ReceiveSaveRequestDto requestDto) {
 		String token = requestDto.getToken();
 		Long distributionId = this.getDistributionId(token, roomId);
-		this.receiveRequestSave(distributionId, roomId, userId, requestDto);
+		receiveRequestSave(distributionId, roomId, userId, requestDto);
+
+		validReceiveToken(token, roomId, userId, distributionId);
+
+		List<Receive> receiveList = this.receiveRepository.findRemainAmountByToken(token, distributionId);
+		int idx = (int)(Math.random()*receiveList.size());
+		Receive receive = receiveList.get(idx);
+		receive.setUserId(userId);
+
+		int amount = receiveUpdate(receive);
+
+		ReceiveSaveResponseDto responseDto = new ReceiveSaveResponseDto();
+		responseDto.setAmount(amount);
+
+		return responseDto;
+	}
+
+	public void validReceiveToken(String token, Long roomId, Long userId, Long distributionId) {
 		if(tokenServiceImpl.checkByTokenInRoom(token, roomId)) {
 			throw new DistributionException("유효하지 않은 토큰입니다.", "T001");
 		}
@@ -120,15 +142,6 @@ public class DistributionService {
 		if(findAlreadyReceiveByTokenInRoom(token, distributionId, userId) > 0) {
 			throw new DistributionException("이미 받으셨습니다.", "M002");
 		}
-		List<Receive> receiveList = this.receiveRepository.findRemainAmountByToken(token, distributionId);
-		int idx = (int)(Math.random()*receiveList.size());
-		Receive receive = receiveList.get(idx);
-		receive.setUserId(userId);
-		int amount = receiveUpdate(receive);
-		ReceiveSaveResponseDto responseDto = new ReceiveSaveResponseDto();
-		responseDto.setAmount(amount);
-
-		return responseDto;
 	}
 
 	public Long findAlreadyReceiveByTokenInRoom(String token, Long distributionId, Long userId) {
@@ -168,11 +181,7 @@ public class DistributionService {
 	public DistributionListResponseDto getDistributionList(String token, Long roomId) {
 		Distribution distribution = this.distributeRepository.findDistributionByTokenInRoom(token, roomId);
 		if(distribution.getId() == null){
-			return null;
-		}
-
-		if(distribution.getCreatedAt() == null) {
-			return null;
+			throw new DistributionException("유효하지 않은 토큰입니다.", "T001");
 		}
 
 		List<Receive> receiveList = this.receiveRepository.findReceiveListByDistribution(token, distribution.getId());
