@@ -90,4 +90,21 @@ public class DistributionControllerTest {
 
 		return content;
 	}
+
+	@Test
+	@DisplayName("조회 API: 조회 기능 테스트")
+	public void distributionList() throws Exception {
+		Long roomId = 1L;
+		Long userId = 1L;
+		String token = "UR5";
+
+		this.mockMvc.perform(
+			get("/api/v1/distribution")
+			.header("X-ROOM-ID", roomId)
+			.header("X-USER-ID", userId)
+			.header("token", token)
+		)
+			.andExpect(status().isOk())
+			.andDo(print());
+	}
 }
