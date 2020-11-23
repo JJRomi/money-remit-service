@@ -5,8 +5,10 @@ import java.util.List;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.stereotype.Repository;
 
+import com.kpay.remit.distribution.dto.ReceiveListDto;
 import com.kpay.remit.model.QReceive;
 import com.kpay.remit.model.Receive;
+import com.querydsl.core.types.Projections;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,7 +42,7 @@ public class ReceiveRepository extends QuerydslRepositorySupport {
 			.fetch();
 	}
 
-	public List<Receive> findReceiveListByDistribution(String token, Long distributionId) {
+	public List<ReceiveListDto> findReceiveListByDistribution(String token, Long distributionId) {
 		log.info("find receive list by distribution id");
 		QReceive qReceive = QReceive.receive;
 
@@ -48,6 +50,7 @@ public class ReceiveRepository extends QuerydslRepositorySupport {
 			.where(qReceive.token.eq(token))
 			.where(qReceive.distributionId.eq(distributionId))
 			.where(qReceive.userId.isNotNull())
+			.select(Projections.fields(ReceiveListDto.class, qReceive.amount, qReceive.userId))
 			.fetch();
 	}
 

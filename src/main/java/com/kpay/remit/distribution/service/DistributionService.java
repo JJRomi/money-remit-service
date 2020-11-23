@@ -10,6 +10,7 @@ import com.kpay.remit.common.exception.DistributionException;
 import com.kpay.remit.distribution.dto.DistributionListResponseDto;
 import com.kpay.remit.distribution.dto.DistributionSaveRequestDto;
 import com.kpay.remit.distribution.dto.DistributionSaveResponseDto;
+import com.kpay.remit.distribution.dto.ReceiveListDto;
 import com.kpay.remit.distribution.dto.ReceiveSaveRequestDto;
 import com.kpay.remit.distribution.dto.ReceiveSaveResponseDto;
 import com.kpay.remit.distribution.repository.DistributeRepository;
@@ -184,11 +185,14 @@ public class DistributionService {
 			throw new DistributionException("유효하지 않은 토큰입니다.", "T001");
 		}
 
-		List<Receive> receiveList = this.receiveRepository.findReceiveListByDistribution(token, distribution.getId());
+		List<ReceiveListDto> receiveList = this.receiveRepository.findReceiveListByDistribution(token, distribution.getId());
 		DistributionListResponseDto responseDto = new DistributionListResponseDto();
-		responseDto.setDistributionDate(distribution.getCreatedAt());
-		responseDto.setAmount(distribution.getAmount());
+		responseDto.setDistributionDateTime(distribution.getCreatedAt());
+		responseDto.setDistributionAmount(distribution.getAmount());
 		responseDto.setReceiveList(receiveList);
+
+		int sumAmount = receiveList.stream().mapToInt(ReceiveListDto::getAmount).sum();
+		responseDto.setReceiveAmount(sumAmount);
 
 		return responseDto;
 	}

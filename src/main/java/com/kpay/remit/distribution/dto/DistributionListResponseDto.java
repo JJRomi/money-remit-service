@@ -4,19 +4,19 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.kpay.remit.model.Receive;
 
 import lombok.Data;
 
 @Data
 public class DistributionListResponseDto {
-	private LocalDateTime distributionDate;
-	private int amount;
-	private List<Receive> receiveList;
+	private LocalDateTime distributionDateTime;
+	private int distributionAmount;
+	private int receiveAmount;
+	private List<ReceiveListDto> receiveList;
 
-	@JsonFormat(pattern = "yyyy-MM-dd")
-	public LocalDateTime getDistributionDate() {
-		return distributionDate;
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	public LocalDateTime getDistributionDateTime() {
+		return distributionDateTime;
 	}
 
 }
